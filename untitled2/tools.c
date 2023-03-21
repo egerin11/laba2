@@ -43,8 +43,8 @@ void readFile( struct Node *node, const char *fileName) {
         temp[0] = '\0';
         const char *token = strtok_r(buffer, " \t\n",&savePtr);
         while (token != NULL) {
-          int i=0;
-           i= cycleWord(token,temp);
+          int i;
+           i=cycleWord(token,temp);
             if (i > 0) {
                 addNode(node,temp);
             }
@@ -180,15 +180,15 @@ int compress(const char *fileName, const char *word, const char *newWord) {
     }
     FILE *oldFile = fopen(fileName, "r");
     FILE *newFile = fopen("File.txt", "w");
-    if (oldFile == NULL) {
-        printf("Failed to open %s\n", fileName);
-        return 1;
-    }
-    if (newFile == NULL) {
-        printf("Failed to create new file\n");
+    if (oldFile == NULL||newFile == NULL) {
+        printf("Failed to open");
         fclose(oldFile);
         return 1;
     }
+
+
+
+
     fprintf(newFile, "%s %s ", word, newWord);
     char buffer[1000];
     while (fgets(buffer, 1000, oldFile) != NULL) {
@@ -212,12 +212,8 @@ int unCompress(const char *fileName) {
 
     FILE *oldFile = fopen(fileName, "r");
     FILE *newFile = fopen("newFile.txt", "w");
-    if (oldFile == NULL) {
-        printf("Failed to open %s\n", fileName);
-        return 1;
-    }
-    if (newFile == NULL) {
-        printf("Failed to create new file\n");
+    if (oldFile == NULL||newFile == NULL) {
+        printf("Failed to open");
         fclose(oldFile);
         return 1;
     }
