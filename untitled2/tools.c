@@ -166,22 +166,21 @@ void token(char *buffer, char *temp, const char *word, const char *nWord) {
 
 
 
-void compress(const char *fileName, const char *word, const char *newWord) {
+int compress(const char *fileName, const char *word, const char *newWord) {
     if (word == NULL || newWord == NULL) {
         printf("Error: word or newWord is NULL\n");
-        return;
+        return 1;
     }
     FILE *oldFile = fopen(fileName, "r");
     FILE *newFile = fopen("File.txt", "w");
     if (oldFile == NULL) {
         printf("Failed to open %s\n", fileName);
-        fclose(newFile);
-        return;
+        return 1;
     }
     if (newFile == NULL) {
         printf("Failed to create new file\n");
-        fclose(oldFile);
-        return;
+
+        return 1;
     }
     fprintf(newFile, "%s %s ", word, newWord);
     char buffer[1000];
@@ -198,22 +197,22 @@ void compress(const char *fileName, const char *word, const char *newWord) {
 
     fclose(oldFile);
     fclose(newFile);
+    return 0;
 }
 
 
-void unCompress(const char *fileName) {
+int unCompress(const char *fileName) {
 
     FILE *oldFile = fopen(fileName, "r");
     FILE *newFile = fopen("newFile.txt", "w");
     if (oldFile == NULL) {
         printf("Failed to open %s\n", fileName);
-        fclose(newFile);
-        return;
+        return 1;
     }
     if (newFile == NULL) {
         printf("Failed to create new file\n");
         fclose(oldFile);
-        return;
+        return 1;
     }
     char buffer[1000];
     char word[100];
@@ -234,6 +233,7 @@ void unCompress(const char *fileName) {
 
     fclose(oldFile);
     fclose(newFile);
+    return 0;
 }
 
 

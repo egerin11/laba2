@@ -7,9 +7,9 @@ char *findMaxLenWord(const struct Node *node);
 
 char *findMinLenWord(const struct Node *node);
 
-void compress(const char *fileName, const char *word, const char *newWord);
+int compress(const char *fileName, const char *word, const char *newWord);
 
-void unCompress(const char *fileName);
+int unCompress(const char *fileName);
 
 void deleteSymbol(char *temp);
 
