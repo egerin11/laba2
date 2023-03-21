@@ -2,7 +2,7 @@
 #define LABA2_TOOLS_H
 
 int cycleWord(const char *token, char *temp);
-void addNode(struct Node *node,char *temp);
+void addNode(struct Node *node,const char *temp);
 void readFile( struct Node *node, const char *fileName);
 
 char *findMaxLenWord(const struct Node *node);

@@ -16,7 +16,7 @@ int cycleWord(const char *token,char *temp)
     temp[i] = '\0';
     return i;
 }
-void addNode(struct Node *node,char *temp)
+void addNode(struct Node *node,const char *temp)
 {
     struct WordNode *iter = node->head;
     while (iter != NULL) {
@@ -182,7 +182,6 @@ int compress(const char *fileName, const char *word, const char *newWord) {
     FILE *newFile = fopen("File.txt", "w");
     if (oldFile == NULL) {
         printf("Failed to open %s\n", fileName);
-        fclose(newFile);
         return 1;
     }
     if (newFile == NULL) {
@@ -190,7 +189,7 @@ int compress(const char *fileName, const char *word, const char *newWord) {
         fclose(oldFile);
         return 1;
     }
-    fprintf(newFile, "%20s %20s ", word, newWord);
+    fprintf(newFile, "%s %s ", word, newWord);
     char buffer[1000];
     while (fgets(buffer, 1000, oldFile) != NULL) {
         char *temp = (char *) calloc(1000, sizeof(char));
@@ -215,7 +214,6 @@ int unCompress(const char *fileName) {
     FILE *newFile = fopen("newFile.txt", "w");
     if (oldFile == NULL) {
         printf("Failed to open %s\n", fileName);
-        fclose(newFile);
         return 1;
     }
     if (newFile == NULL) {
