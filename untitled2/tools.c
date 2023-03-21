@@ -5,7 +5,31 @@
 #include<stdlib.h>
 #include <ctype.h>
 #include<stdbool.h>
-
+int cycleWord(const char *token,char *temp)
+{
+    int i = 0;
+    for (int j = 0; token[j]; j++) {
+        if (isalnum(token[j])) {
+            temp[i++] = (char)tolower(token[j]);
+        }
+    }
+    temp[i] = '\0';
+    return i;
+}
+void addNode(struct Node *node,char *temp)
+{
+    struct WordNode *iter = node->head;
+    while (iter != NULL) {
+        if (strcmp(iter->word, temp) == 0) {
+            iter->countWords++;
+            break;
+        }
+        iter = iter->next;
+    }
+    if (iter == NULL) {
+        create(node, temp);
+    }
+}
 void readFile( struct Node *node, const char *fileName) {
     FILE *fp = fopen(fileName, "r");
     if (fp == NULL) {
@@ -19,27 +43,10 @@ void readFile( struct Node *node, const char *fileName) {
         temp[0] = '\0';
         const char *token = strtok_r(buffer, " \t\n",&savePtr);
         while (token != NULL) {
-            int i = 0;
-            for (int j = 0; token[j]; j++) {
-                if (isalnum(token[j])) {
-                    temp[i++] = (char)tolower(token[j]);
-                }
-
-            }
-
-            temp[i] = '\0';
+          int i=0;
+           i= cycleWord(token,temp);
             if (i > 0) {
-                struct WordNode *iter = node->head;
-                while (iter != NULL) {
-                    if (strcmp(iter->word, temp) == 0) {
-                        iter->countWords++;
-                        break;
-                    }
-                    iter = iter->next;
-                }
-                if (iter == NULL) {
-                    create(node, temp);
-                }
+                addNode(node,temp);
             }
             token = strtok_r(NULL, " \t\n",&savePtr);
         }
@@ -175,13 +182,15 @@ int compress(const char *fileName, const char *word, const char *newWord) {
     FILE *newFile = fopen("File.txt", "w");
     if (oldFile == NULL) {
         printf("Failed to open %s\n", fileName);
+        fclose(newFile);
         return 1;
     }
     if (newFile == NULL) {
         printf("Failed to create new file\n");
+        fclose(oldFile);
         return 1;
     }
-    fprintf(newFile, "%s %s ", word, newWord);
+    fprintf(newFile, "%20s %20s ", word, newWord);
     char buffer[1000];
     while (fgets(buffer, 1000, oldFile) != NULL) {
         char *temp = (char *) calloc(1000, sizeof(char));
@@ -206,6 +215,7 @@ int unCompress(const char *fileName) {
     FILE *newFile = fopen("newFile.txt", "w");
     if (oldFile == NULL) {
         printf("Failed to open %s\n", fileName);
+        fclose(newFile);
         return 1;
     }
     if (newFile == NULL) {
