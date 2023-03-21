@@ -6,44 +6,42 @@
 #include <ctype.h>
 #include<stdbool.h>
 
-void readFile(struct Node *node, const char *fileName) {
+void readFile( struct Node *node, const char *fileName) {
     FILE *fp = fopen(fileName, "r");
     if (fp == NULL) {
         printf("open error");
         return;
     }
-
+    char *savePtr;
     char buffer[100];
     char temp[100];
     while (fgets(buffer, 100, fp) != NULL) {
         temp[0] = '\0';
-        char *savePtr;
-        const char *token = strtok_r(buffer, " \t\n", &savePtr);
+        const char *token = strtok_r(buffer, " \t\n",&savePtr);
         while (token != NULL) {
             int i = 0;
             for (int j = 0; token[j]; j++) {
                 if (isalnum(token[j])) {
-                    temp[i++] = tolower(token[j]);
+                    temp[i++] = (char)tolower(token[j]);
                 }
-            }
-            temp[i] = '\0';
 
-            if (i <= 0) {
-                token = strtok_r(NULL, " \t\n", &savePtr);
-                continue;
             }
-            struct WordNode *iter = node->head;
-            while (iter != NULL) {
-                if (strcmp(iter->word, temp) == 0) {
-                    iter->countWords++;
-                    break;
+
+            temp[i] = '\0';
+            if (i > 0) {
+                struct WordNode *iter = node->head;
+                while (iter != NULL) {
+                    if (strcmp(iter->word, temp) == 0) {
+                        iter->countWords++;
+                        break;
+                    }
+                    iter = iter->next;
                 }
-                iter = iter->next;
+                if (iter == NULL) {
+                    create(node, temp);
+                }
             }
-            if (iter == NULL) {
-                create(node, temp);
-            }
-            token = strtok_r(NULL, " \t\n", &savePtr);
+            token = strtok_r(NULL, " \t\n",&savePtr);
         }
     }
     fclose(fp);
@@ -83,7 +81,7 @@ char *findMinLenWord(const struct Node *node) {
     char *tempArray = NULL;
     struct WordNode *iter = node->head;
     while (iter != NULL) {
-        if (strlen(iter->word) < 2 && iter->countWords <= minCount && iter->countWords < getMaxCount(node)) {
+        if (strlen(iter->word) < 3 && iter->countWords <= minCount && iter->countWords < getMaxCount(node)) {
             minCount = iter->countWords;
             tempArray = iter->word;
         }
@@ -130,9 +128,9 @@ void inputSpaces(const char *buffer, char *temp, int i) {
 
 }
 
-void token(char *buffer, char *temp, const char *word, const char *newWord) {
+void token(char *buffer, char *temp, const char *word, const char *nWord) {
     char *savePtr;
-    char *token = strtok_r(buffer, " \t\n", &savePtr);
+   const char *token = strtok_r(buffer, " \t\n", &savePtr);
     while (token != NULL) {
         unsigned long len = strlen(token);
         if (len == 0) {
@@ -144,18 +142,18 @@ void token(char *buffer, char *temp, const char *word, const char *newWord) {
             strncpy(wordOnly, token, len - 1);
             wordOnly[len - 1] = '\0';
             if (strcmp(wordOnly, word) == 0) {
-                strcat(temp, newWord);
-            } else if (strcmp(token, newWord) == 0) {
+                strcat(temp, nWord);
+            } else if (strcmp(token, nWord) == 0) {
                 strcat(temp, word);
             } else {
                 strcat(temp, token);
             }
             free(wordOnly);
         } else {
-            if (strcmp(token, newWord) == 0) {
+            if (strcmp(token, nWord) == 0) {
                 strcat(temp, word);
             } else if (strcmp(token, word) == 0) {
-                strcat(temp, newWord);
+                strcat(temp, nWord);
             } else {
                 strcat(temp, token);
             }
@@ -177,6 +175,7 @@ void compress(const char *fileName, const char *word, const char *newWord) {
     FILE *newFile = fopen("File.txt", "w");
     if (oldFile == NULL) {
         printf("Failed to open %s\n", fileName);
+        fclose(newFile);
         return;
     }
     if (newFile == NULL) {
@@ -208,6 +207,7 @@ void unCompress(const char *fileName) {
     FILE *newFile = fopen("newFile.txt", "w");
     if (oldFile == NULL) {
         printf("Failed to open %s\n", fileName);
+        fclose(newFile);
         return;
     }
     if (newFile == NULL) {

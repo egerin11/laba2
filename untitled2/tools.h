@@ -18,7 +18,7 @@ void checkTransitionToANewLine(char *temp, const char *token);
 void inputSpaces(const char *buffer, char *temp, int i);
 
 int getMaxCount(const struct Node *node);
-void token( char *buffer,char *temp,const char *word,const char *newWord);
+void token( char *buffer,char *temp,const char *word,const char *nWord);
 
 
 
