@@ -3,9 +3,10 @@
 #include <string.h>
 #include"struct.h"
 
-void create(struct Node *node, char *buffer) {
+void create(struct Node *node,const  char *buffer) {
     struct WordNode *word = (struct WordNode *) malloc(sizeof(struct WordNode));
     if (strlen(buffer) > 100) {
+        free(word);
         return;
     } else {
         strcpy(word->word, buffer);

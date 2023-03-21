@@ -4,7 +4,8 @@
 #include"tools.h"
 
 int main() {
-    char *buffer, *newWord;
+    char *buffer;
+    char *newWord;
 
     struct Node node = {NULL, NULL, 0};
     readFile(&node, "huinya.txt");

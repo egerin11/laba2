@@ -4,20 +4,21 @@
 #include"queue.h"
 #include<stdlib.h>
 #include <ctype.h>
-#include <unistd.h>
 #include<stdbool.h>
 
-void readFile(const struct Node *node, const char *fileName) {
+void readFile(struct Node *node, const char *fileName) {
     FILE *fp = fopen(fileName, "r");
     if (fp == NULL) {
         printf("open error");
         return;
     }
+
     char buffer[100];
     char temp[100];
     while (fgets(buffer, 100, fp) != NULL) {
         temp[0] = '\0';
-        char *token = strtok(buffer, " \t\n");
+        char *savePtr;
+        const char *token = strtok_r(buffer, " \t\n", &savePtr);
         while (token != NULL) {
             int i = 0;
             for (int j = 0; token[j]; j++) {
@@ -25,25 +26,24 @@ void readFile(const struct Node *node, const char *fileName) {
                     temp[i++] = tolower(token[j]);
                 }
             }
-            if (temp[i - 1] == '\n') {
-                temp[i - 1] = '\0';
-                i--;
-            }
             temp[i] = '\0';
-            if (i > 0) {
-                struct WordNode *iter = node->head;
-                while (iter != NULL) {
-                    if (strcmp(iter->word, temp) == 0) {
-                        iter->countWords++;
-                        break;
-                    }
-                    iter = iter->next;
-                }
-                if (iter == NULL) {
-                    create(node, temp);
-                }
+
+            if (i <= 0) {
+                token = strtok_r(NULL, " \t\n", &savePtr);
+                continue;
             }
-            token = strtok(NULL, " \t\n");
+            struct WordNode *iter = node->head;
+            while (iter != NULL) {
+                if (strcmp(iter->word, temp) == 0) {
+                    iter->countWords++;
+                    break;
+                }
+                iter = iter->next;
+            }
+            if (iter == NULL) {
+                create(node, temp);
+            }
+            token = strtok_r(NULL, " \t\n", &savePtr);
         }
     }
     fclose(fp);
@@ -100,7 +100,7 @@ void deleteSymbol(char *temp) {
     }
 }
 
-void checkTransitionToANewLine(char *temp, char *token) {
+void checkTransitionToANewLine(char *temp, const char *token) {
     bool hasNewline;
     if (token[strlen(token) - 1] != '\n') {
         strcat(temp, " ");
@@ -124,52 +124,48 @@ void inputSpaces(const char *buffer, char *temp, int i) {
         }
         i++;
     }
-    for (int i = 0; i < numSpaces; i++) {
+    for (int j = i; j < numSpaces; j++) {
         strcat(temp, " ");
     }
 
 }
-void token( char *buffer,char *temp,const char *word,const char *newWord)
-{
-    char *token = strtok(buffer, " \t\n");
+
+void token(char *buffer, char *temp, const char *word, const char *newWord) {
+    char *savePtr;
+    char *token = strtok_r(buffer, " \t\n", &savePtr);
     while (token != NULL) {
-        int len = strlen(token);
-        if (len > 0) {
-
-            char lastChar = token[len - 1];
-            if (!isalnum(lastChar)) {
-                char *wordOnly = malloc(len);
-                strncpy(wordOnly, token, len - 1);
-                wordOnly[len - 1] = '\0';
-                if (strcmp(wordOnly, word) == 0) {
-                    strcat(temp, newWord);
-
-                } else if (strcmp(token, newWord) == 0) {
-                    strcat(temp, word);
-
-                } else {
-                    strcat(temp, token);
-                }
-                free(wordOnly);
+        unsigned long len = strlen(token);
+        if (len == 0) {
+            continue;
+        }
+        char lastChar = token[len - 1];
+        if (!isalnum(lastChar)) {
+            char *wordOnly = malloc(len);
+            strncpy(wordOnly, token, len - 1);
+            wordOnly[len - 1] = '\0';
+            if (strcmp(wordOnly, word) == 0) {
+                strcat(temp, newWord);
+            } else if (strcmp(token, newWord) == 0) {
+                strcat(temp, word);
             } else {
-                if (strcmp(token, newWord) == 0) {
-                    strcat(temp, word);
-                } else if (strcmp(token, word) == 0) {
-                    strcat(temp, newWord);
-                } else {
-
-                    strcat(temp, token);
-
-                }
+                strcat(temp, token);
             }
-
-
-            checkTransitionToANewLine(temp, token);
-            token = strtok(NULL, " \t\n");
+            free(wordOnly);
+        } else {
+            if (strcmp(token, newWord) == 0) {
+                strcat(temp, word);
+            } else if (strcmp(token, word) == 0) {
+                strcat(temp, newWord);
+            } else {
+                strcat(temp, token);
+            }
         }
 
+        checkTransitionToANewLine(temp, token);
+        token = strtok_r(NULL, " \t\n", &savePtr);
     }
 }
+
 
 
 void compress(const char *fileName, const char *word, const char *newWord) {
@@ -179,11 +175,13 @@ void compress(const char *fileName, const char *word, const char *newWord) {
     }
     FILE *oldFile = fopen(fileName, "r");
     FILE *newFile = fopen("File.txt", "w");
-    if (oldFile == NULL || newFile == NULL) {
-        printf("open error \n");
-
+    if (oldFile == NULL) {
+        printf("Failed to open %s\n", fileName);
+        return;
+    }
+    if (newFile == NULL) {
+        printf("Failed to create new file\n");
         fclose(oldFile);
-        fclose(newFile);
         return;
     }
     fprintf(newFile, "%s %s ", word, newWord);
@@ -191,7 +189,7 @@ void compress(const char *fileName, const char *word, const char *newWord) {
     while (fgets(buffer, 1000, oldFile) != NULL) {
         char *temp = (char *) calloc(1000, sizeof(char));
         inputSpaces(buffer, temp, 0);
-        token(buffer,temp,word,newWord);
+        token(buffer, temp, word, newWord);
         deleteSymbol(temp);
         strcat(temp, "\n");
         temp = (char *) realloc(temp, (strlen(temp) + 2) * sizeof(char));
@@ -208,13 +206,15 @@ void unCompress(const char *fileName) {
 
     FILE *oldFile = fopen(fileName, "r");
     FILE *newFile = fopen("newFile.txt", "w");
-    if (oldFile == NULL || newFile == NULL) {
-        printf("open error\n");
-        fclose(oldFile);
-        fclose(newFile);
+    if (oldFile == NULL) {
+        printf("Failed to open %s\n", fileName);
         return;
     }
-
+    if (newFile == NULL) {
+        printf("Failed to create new file\n");
+        fclose(oldFile);
+        return;
+    }
     char buffer[1000];
     char word[100];
     char newWord[100];
@@ -223,7 +223,7 @@ void unCompress(const char *fileName) {
     while (fgets(buffer, 1000, oldFile) != NULL) {
         char *temp = (char *) calloc(1000, sizeof(char));
         inputSpaces(buffer, temp, 1);
-        token(buffer,temp,newWord,word);
+        token(buffer, temp, newWord, word);
         deleteSymbol(temp);
         strcat(temp, "\n");
         temp = (char *) realloc(temp, (strlen(temp) + 2) * sizeof(char));

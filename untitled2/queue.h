@@ -1,7 +1,7 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-void create(struct Node *node, char *buffer);
+void create(struct Node *node,const  char *buffer);
 
 void display(struct Node *node);
 

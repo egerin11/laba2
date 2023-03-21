@@ -1,7 +1,7 @@
 #ifndef LABA2_TOOLS_H
 #define LABA2_TOOLS_H
 
-void readFile(const struct Node *node, const char *fileName);
+void readFile( struct Node *node, const char *fileName);
 
 char *findMaxLenWord(const struct Node *node);
 
@@ -13,7 +13,7 @@ void unCompress(const char *fileName);
 
 void deleteSymbol(char *temp);
 
-void checkTransitionToANewLine(char *temp, char *token);
+void checkTransitionToANewLine(char *temp, const char *token);
 
 void inputSpaces(const char *buffer, char *temp, int i);
 
