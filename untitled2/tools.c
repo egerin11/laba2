@@ -179,7 +179,6 @@ int compress(const char *fileName, const char *word, const char *newWord) {
     }
     if (newFile == NULL) {
         printf("Failed to create new file\n");
-
         return 1;
     }
     fprintf(newFile, "%s %s ", word, newWord);
