@@ -180,10 +180,14 @@ int compress(const char *fileName, const char *word, const char *newWord) {
     }
     FILE *oldFile = fopen(fileName, "r");
     FILE *newFile = fopen("File.txt", "w");
-    if (oldFile == NULL||newFile == NULL) {
+    if (oldFile == NULL || newFile == NULL) {
         printf("Failed to open");
-        fclose(newFile);
-        fclose(oldFile);
+        if (oldFile != NULL) {
+            fclose(oldFile);
+        }
+        if (newFile != NULL) {
+            fclose(newFile);
+        }
         return 1;
     }
 
@@ -213,12 +217,17 @@ int unCompress(const char *fileName) {
 
     FILE *oldFile = fopen(fileName, "r");
     FILE *newFile = fopen("newFile.txt", "w");
-    if (oldFile == NULL||newFile == NULL) {
+    if (oldFile == NULL || newFile == NULL) {
         printf("Failed to open");
-        fclose(newFile);
-        fclose(oldFile);
+        if (oldFile != NULL) {
+            fclose(oldFile);
+        }
+        if (newFile != NULL) {
+            fclose(newFile);
+        }
         return 1;
     }
+
     char buffer[1000];
     char word[100];
     char newWord[100];
